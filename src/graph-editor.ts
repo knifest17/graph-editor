@@ -306,6 +306,7 @@ export class GraphEditor extends LitElement {
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault(); // Prevent browser navigation on Backspace
         this._deleteSelectedNodes();
+        this._deleteSelectedLinks();
       } else if (e.key === "a" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault(); // Prevent default "Select All" behavior
         this._selectAllNodes();
@@ -571,6 +572,12 @@ export class GraphEditor extends LitElement {
   }
 
   private _emitGraphChanged(): void {
+    // Validate all connections before emitting
+    const removedLinks = this.store.validateConnections();
+    if (removedLinks.length > 0) {
+      console.warn(`Removed ${removedLinks.length} invalid connection(s)`);
+    }
+
     this.dispatchEvent(
       new CustomEvent("graph-changed", {
         detail: { graph: this.exportGraph() },
@@ -1161,6 +1168,20 @@ export class GraphEditor extends LitElement {
 
     // Clear selection
     this.store.interaction.selectedNodes.clear();
+
+    // Emit graph changed event
+    this._emitGraphChanged();
+  }
+
+  private _deleteSelectedLinks(): void {
+    const selectedLinks = this.store.links.filter((link) => link.selected);
+
+    if (selectedLinks.length === 0) {
+      return; // Nothing to delete
+    }
+
+    // Remove selected links
+    this.store.links = this.store.links.filter((link) => !link.selected);
 
     // Emit graph changed event
     this._emitGraphChanged();

@@ -82,31 +82,31 @@ export class GraphRenderer {
     const gridSize = 50;
     const { w, h } = this.store.viewport;
     const zoom = this.store.camera.zoom;
-    const offsetX = this.store.camera.x % (gridSize * zoom);
-    const offsetY = this.store.camera.y % (gridSize * zoom);
 
     ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
     ctx.lineWidth = 1 / zoom;
 
+    // Calculate visible world bounds
+    const left = this.store.camera.x;
+    const right = this.store.camera.x + w / zoom;
+    const top = this.store.camera.y;
+    const bottom = this.store.camera.y + h / zoom;
+
     // Vertical lines
-    for (let x = offsetX; x < w; x += gridSize * zoom) {
+    const startX = Math.ceil(left / gridSize) * gridSize;
+    for (let x = startX; x <= right; x += gridSize) {
       ctx.beginPath();
-      ctx.moveTo((x - this.store.camera.x) / zoom, -this.store.camera.y / zoom);
-      ctx.lineTo(
-        (x - this.store.camera.x) / zoom,
-        (h - this.store.camera.y) / zoom
-      );
+      ctx.moveTo(x, top);
+      ctx.lineTo(x, bottom);
       ctx.stroke();
     }
 
     // Horizontal lines
-    for (let y = offsetY; y < h; y += gridSize * zoom) {
+    const startY = Math.ceil(top / gridSize) * gridSize;
+    for (let y = startY; y <= bottom; y += gridSize) {
       ctx.beginPath();
-      ctx.moveTo(-this.store.camera.x / zoom, (y - this.store.camera.y) / zoom);
-      ctx.lineTo(
-        (w - this.store.camera.x) / zoom,
-        (y - this.store.camera.y) / zoom
-      );
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
       ctx.stroke();
     }
   }
@@ -319,7 +319,7 @@ export class GraphRenderer {
       }
     } else {
       // Draw colored circle for data port
-      const baseColor = this.store.dataTypes[port.type]?.color || "#6699ff";
+      const baseColor = this.store.dataTypes[port.type]?.color || "#888";
       const portColor = isHovered ? lightenColor(baseColor, 0.3) : baseColor;
       const portRadius = 4;
       const outlineWidth = 2;

@@ -1,4 +1,4 @@
-import type { GraphNode, PortInfo } from "./types";
+import type { GraphNode, PortInfo, GraphLink } from "./types";
 import { EditorStore } from "./store";
 import { CameraController } from "./utils/camera";
 import { GraphLinkImpl } from "./models/GraphLink";
@@ -103,6 +103,16 @@ export class MouseHandler {
     // Right click - context menu
     if (e.button === 2) {
       e.preventDefault();
+      // Check if right-clicking on a connection
+      const clickedLink = this._getClickedLink(worldPos);
+      if (clickedLink) {
+        // Delete the connection directly
+        this.store.links = this.store.links.filter(
+          (link) => link !== clickedLink
+        );
+        this.onGraphChanged();
+        return;
+      }
       this._showContextMenu(worldPos.x, worldPos.y);
       return;
     }
@@ -121,13 +131,26 @@ export class MouseHandler {
 
     // Left click
     if (e.button === 0) {
-      // Check if clicking on a port
+      // Check if clicking on a port (highest priority)
       for (const node of this.store.nodes) {
         const portInfo = node.portAt(worldPos.x, worldPos.y);
         if (portInfo) {
           this._startConnection(portInfo);
           return;
         }
+      }
+
+      // Check if clicking on a connection
+      const clickedLink = this._getClickedLink(worldPos);
+      if (clickedLink) {
+        // Toggle selection (allow multiple with Ctrl)
+        if (!e.ctrlKey && !e.shiftKey) {
+          // Clear other selections
+          this.store.links.forEach((link) => (link.selected = false));
+        }
+        clickedLink.selected = !clickedLink.selected;
+        this.onGraphChanged();
+        return;
       }
 
       // Check if clicking on a node
@@ -254,21 +277,7 @@ export class MouseHandler {
   }
 
   private _canConnect(from: PortInfo, to: PortInfo): boolean {
-    // Can't connect to same node
-    if (from.node === to.node) return false;
-
-    // Must be different port types (input to output or vice versa)
-    if (from.type === to.type) return false;
-
-    // Check if connection already exists
-    const exists = this.store.links.some(
-      (l) =>
-        (l.fromPort === from && l.toPort === to) ||
-        (l.fromPort === to && l.toPort === from)
-    );
-    if (exists) return false;
-
-    return true;
+    return this.store.canConnect(from, to);
   }
 
   private _createConnection(from: PortInfo, to: PortInfo): void {
@@ -277,9 +286,61 @@ export class MouseHandler {
       [from, to] = [to, from];
     }
 
+    // For exec output ports, remove any existing connections first
+    if (from.port.type === "exec") {
+      this.store.links = this.store.links.filter(
+        (link) =>
+          !(
+            link.fromPort.node === from.node &&
+            link.fromPort.index === from.index &&
+            link.fromPort.type === "output"
+          )
+      );
+    }
+
     const link = new GraphLinkImpl(from, to, this.store);
     this.store.links.push(link);
     this.onGraphChanged();
+  }
+
+  private _getClickedLink(worldPos: {
+    x: number;
+    y: number;
+  }): GraphLink | null {
+    const tolerance = 15 / this.store.camera.zoom; // Increased from 5 to 15 for easier clicking
+
+    for (const link of this.store.links) {
+      if (this._isPointOnLink(worldPos, link, tolerance)) {
+        return link;
+      }
+    }
+    return null;
+  }
+
+  private _isPointOnLink(
+    point: { x: number; y: number },
+    link: GraphLink,
+    tolerance: number
+  ): boolean {
+    const from = link.fromPort.port;
+    const to = link.toPort.port;
+    const dx = to.x - from.x;
+    const controlPointOffset = Math.min(Math.abs(dx) / 2, 100);
+
+    // Approximate as a quadratic Bezier curve
+    const steps = 20;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x =
+        (1 - t) ** 2 * from.x +
+        2 * (1 - t) * t * (from.x + controlPointOffset) +
+        t ** 2 * to.x;
+      const y =
+        (1 - t) ** 2 * from.y + 2 * (1 - t) * t * from.y + t ** 2 * to.y;
+      const dist = Math.sqrt((point.x - x) ** 2 + (point.y - y) ** 2);
+      if (dist < tolerance) return true;
+    }
+    return false;
   }
 
   private _clearSelection(): void {
@@ -287,6 +348,11 @@ export class MouseHandler {
       node.selected = false;
     }
     this.store.interaction.selectedNodes.clear();
+
+    // Also clear link selections
+    for (const link of this.store.links) {
+      link.selected = false;
+    }
   }
 
   private _updateSelectionBox(): void {
@@ -296,6 +362,7 @@ export class MouseHandler {
     const minY = Math.min(start.y, end.y);
     const maxY = Math.max(start.y, end.y);
 
+    // Select nodes
     for (const node of this.store.nodes) {
       const inBox =
         node.x + node.width >= minX &&
@@ -314,6 +381,23 @@ export class MouseHandler {
           node.selected = false;
         }
       }
+    }
+
+    // Select links that intersect with the selection box
+    for (const link of this.store.links) {
+      const linkMinX = Math.min(link.fromPort.port.x, link.toPort.port.x);
+      const linkMaxX = Math.max(link.fromPort.port.x, link.toPort.port.x);
+      const linkMinY = Math.min(link.fromPort.port.y, link.toPort.port.y);
+      const linkMaxY = Math.max(link.fromPort.port.y, link.toPort.port.y);
+
+      // Check if link bounding box intersects with selection box
+      const intersects =
+        linkMaxX >= minX &&
+        linkMinX <= maxX &&
+        linkMaxY >= minY &&
+        linkMinY <= maxY;
+
+      link.selected = intersects;
     }
   }
 
