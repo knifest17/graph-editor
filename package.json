@@ -1,0 +1,36 @@
+{
+  "name": "@modeditor/graph-editor",
+  "version": "1.0.0",
+  "description": "Standalone graph editor web component built with Lit",
+  "type": "module",
+  "main": "dist/graph-editor.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/graph-editor.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "graph-editor",
+    "node-editor",
+    "web-component",
+    "lit",
+    "visual-programming"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0"
+  }
+}

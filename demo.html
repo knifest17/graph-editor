@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph Editor Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: #2a2a2a;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #444;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: normal;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #444;
+      color: #fff;
+      border: 1px solid #666;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    button:active {
+      background: #333;
+    }
+
+    .editor-container {
+      flex: 1;
+      position: relative;
+    }
+
+    graph-editor {
+      width: 100%;
+      height: 100%;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow: auto;
+      border: 1px solid #444;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 16px;
+    }
+
+    .modal-content pre {
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border: 1px solid #444;
+    }
+
+    .modal-content .buttons {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <h1>Graph Editor Demo</h1>
+      <div class="controls">
+        <button id="loadSample">Load Sample</button>
+        <button id="exportGraph">Export Graph</button>
+        <button id="generateCode">Generate Code</button>
+        <button id="clear">Clear</button>
+      </div>
+    </div>
+    <div class="editor-container">
+      <graph-editor id="editor"></graph-editor>
+    </div>
+  </div>
+
+  <div id="codeModal" class="modal">
+    <div class="modal-content">
+      <h2>Generated Code</h2>
+      <pre id="codeOutput"></pre>
+      <div class="buttons">
+        <button id="copyCode">Copy</button>
+        <button id="closeCodeModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="graphModal" class="modal">
+    <div class="modal-content">
+      <h2>Graph JSON</h2>
+      <pre id="graphOutput"></pre>
+      <div class="buttons">
+        <button id="copyGraph">Copy</button>
+        <button id="closeGraphModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import './src/index.ts';
+
+    const editor = document.getElementById('editor');
+    const codeModal = document.getElementById('codeModal');
+    const graphModal = document.getElementById('graphModal');
+
+    // Load sample registry
+    async function loadSample() {
+      try {
+        const response = await fetch('/node-registry.json');
+        const registry = await response.json();
+        editor.addRegistry(registry);
+
+        // Create a simple sample graph with connections
+        const node1Id = editor.addNode('flow', 'sequence', 100, 100);
+        const node2Id = editor.addNode('global', 'Print', 400, 100);
+        const node3Id = editor.addNode('values', 'string', 100, 250);
+
+        // Load a complete graph with connections
+        editor.loadGraph({
+          version: '1.0',
+          nodes: [
+            { id: 1, type: 'sequence', category: 'flow', x: 100, y: 100 },
+            { id: 2, type: 'Print', category: 'global', x: 400, y: 100 },
+            { id: 3, type: 'string', category: 'values', x: 100, y: 250, value: 'Hello World!' },
+          ],
+          connections: [
+            {
+              id: 1,
+              from: { nodeId: 1, portIndex: 0, portType: 'output' },
+              to: { nodeId: 2, portIndex: 0, portType: 'input' }
+            },
+            {
+              id: 2,
+              from: { nodeId: 3, portIndex: 0, portType: 'output' },
+              to: { nodeId: 2, portIndex: 1, portType: 'input' }
+            }
+          ]
+        });
+      } catch (e) {
+        alert('Failed to load sample: ' + e.message);
+      }
+    }
+
+    // Export graph
+    document.getElementById('exportGraph').addEventListener('click', () => {
+      const graph = editor.exportGraph();
+      document.getElementById('graphOutput').textContent = JSON.stringify(graph, null, 2);
+      graphModal.classList.add('active');
+    });
+
+    // Generate code
+    document.getElementById('generateCode').addEventListener('click', () => {
+      try {
+        const code = editor.exportCode();
+        document.getElementById('codeOutput').textContent = code;
+        codeModal.classList.add('active');
+      } catch (e) {
+        alert('Code generation failed: ' + e.message);
+      }
+    });
+
+    // Load sample
+    document.getElementById('loadSample').addEventListener('click', loadSample);
+
+    // Clear graph
+    document.getElementById('clear').addEventListener('click', () => {
+      if (confirm('Clear the graph?')) {
+        editor.clearGraph();
+      }
+    });
+
+    // Modal controls
+    document.getElementById('closeCodeModal').addEventListener('click', () => {
+      codeModal.classList.remove('active');
+    });
+
+    document.getElementById('closeGraphModal').addEventListener('click', () => {
+      graphModal.classList.remove('active');
+    });
+
+    document.getElementById('copyCode').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('codeOutput').textContent);
+    });
+
+    document.getElementById('copyGraph').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('graphOutput').textContent);
+    });
+
+    // Listen for events
+    editor.addEventListener('graph-changed', (e) => {
+      console.log('Graph changed:', e.detail.graph);
+    });
+
+    editor.addEventListener('code-generated', (e) => {
+      console.log('Code generated:', e.detail.code);
+    });
+
+    // Auto-load sample on page load
+    loadSample();
+  </script>
+</body>
+</html>

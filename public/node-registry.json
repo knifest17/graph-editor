@@ -1,0 +1,987 @@
+{
+  "version": "1.0",
+  "codeGeneration": {
+    "language": "flex",
+    "indentation": "    ",
+    "variablePrefix": "var_",
+    "resultPrefix": "result_",
+    "commentStyle": "//"
+  },
+  "dataTypes": {
+    "null": {
+      "name": "Null",
+      "color": "#000000"
+    },
+    "bool": {
+      "name": "Boolean",
+      "color": "#ff0000"
+    },
+    "int": {
+      "name": "Integer",
+      "color": "#00ff80"
+    },
+    "float": {
+      "name": "Float",
+      "color": "#00ff00"
+    },
+    "string": {
+      "name": "String",
+      "color": "#ff00ff"
+    },
+    "array": {
+      "name": "Array",
+      "color": "#ff00ff"
+    },
+    "object": {
+      "name": "Object",
+      "color": "#00ffff"
+    },
+    "color": {
+      "name": "Color",
+      "color": "#0000ff"
+    },
+    "vector": {
+      "name": "Vector",
+      "color": "#ffff00"
+    },
+    "varName": {
+      "name": "Variable Name",
+      "color": "#ffa500"
+    }
+  },
+  "nodeCategories": {
+    "values": {
+      "color": "#808080"
+    },
+    "cast": {
+      "color": "#48cf4dff"
+    },
+    "cast/safe": {
+      "color": "#48cf4dff"
+    },
+    "variables": {
+      "color": "#ffa500"
+    },
+    "global": {
+      "color": "#0000ff"
+    },
+    "domains": {
+      "color": "#800080"
+    },
+    "domains/character": {
+      "color": "#800080"
+    },
+    "flow": {
+      "color": "#ff8c00"
+    },
+    "math": {
+      "color": "#2d7d32"
+    },
+    "logic": {
+      "color": "#8b0000"
+    },
+    "accessors": {
+      "color": "#ff1493"
+    }
+  },
+  "ports": {
+    "exec": {}
+  },
+  "nodeTypes": {
+    "_": "/// Getters ///",
+    "get": {
+      "title": "get",
+      "category": "variables",
+      "value": {
+        "type": "string",
+        "default": ""
+      },
+      "outputs": [
+        {
+          "name": "var",
+          "type": "varName",
+          "code": "${value}"
+        }
+      ]
+    },
+    "_": "/// Setters ///",
+    "set": {
+      "title": "set",
+      "category": "variables",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "${var} = ${value}\n${nextAction}"
+        },
+        {
+          "name": "var",
+          "type": "varName"
+        },
+        {
+          "name": "value",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "_": "/// Safe Cast ///",
+    "safeCast<bool>": {
+      "title": "safeCast to bool",
+      "category": "cast/safe",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "if ${var} == bool\n{\n\t${true}\n}\nelse\n{\n\t${false}\n}"
+        },
+        {
+          "name": "var",
+          "type": "varName"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "success",
+          "type": "exec"
+        },
+        {
+          "name": "casted",
+          "type": "bool",
+          "code": "${var}"
+        },
+        {
+          "name": "failedToCast",
+          "type": "exec"
+        }
+      ]
+    },
+    "_": "/// Cast ///",
+    "cast<bool>": {
+      "title": "cast to bool",
+      "category": "cast",
+      "inputs": [
+        {
+          "name": "var",
+          "type": "varName"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "${var}"
+        }
+      ]
+    },
+    "_": "/// Simple values ///",
+    "null": {
+      "title": "Null",
+      "category": "values",
+      "outputs": [
+        {
+          "type": "null",
+          "code": "Null"
+        }
+      ]
+    },
+    "bool": {
+      "title": "Boolean",
+      "category": "values",
+      "value": {
+        "type": "bool",
+        "default": false
+      },
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "${value}"
+        }
+      ]
+    },
+    "int": {
+      "title": "Integer",
+      "category": "values",
+      "value": {
+        "type": "int",
+        "default": 0
+      },
+      "outputs": [
+        {
+          "type": "int",
+          "code": "${value}"
+        }
+      ]
+    },
+    "float": {
+      "title": "Float",
+      "category": "values",
+      "value": {
+        "type": "float",
+        "default": 0.0
+      },
+      "outputs": [
+        {
+          "type": "float",
+          "code": "${value}"
+        }
+      ]
+    },
+    "string": {
+      "title": "String",
+      "category": "values",
+      "value": {
+        "type": "string",
+        "default": "Hello world!"
+      },
+      "outputs": [
+        {
+          "type": "string",
+          "code": "\"${value}\""
+        }
+      ]
+    },
+    "color": {
+      "title": "Color",
+      "category": "values",
+      "value": {
+        "type": "color",
+        "default": "#ffffff"
+      },
+      "outputs": [
+        {
+          "type": "color",
+          "code": "${value}"
+        }
+      ]
+    },
+    "vector": {
+      "title": "Vector",
+      "category": "values",
+      "value": {
+        "type": "float3",
+        "default": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      "outputs": [
+        {
+          "type": "vector",
+          "code": "${value}"
+        }
+      ],
+      "style": {
+        "minWidth": 140
+      }
+    },
+    "_": "/// Domains ///",
+    "CheckPopulationBehaviour": {
+      "title": "CheckPopulationBehaviour",
+      "category": "domains",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "${nextAction}",
+          "implicit": true
+        },
+        {
+          "name": "Mode",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "exec",
+          "name": "nextAction"
+        },
+        {
+          "name": "MaxPopulation",
+          "type": "int",
+          "code": "MaxPopulation"
+        },
+        {
+          "name": "CurrentPopulation",
+          "type": "int",
+          "code": "CurrentPopulation"
+        }
+      ]
+    },
+    "RequestCharacterBehavior": {
+      "title": "RequestCharacterBehavior",
+      "category": "domains",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "${nextAction}",
+          "implicit": true
+        },
+        {
+          "name": "Mode",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "exec",
+          "name": "nextAction"
+        },
+        {
+          "name": "CurrentCharacterIndex",
+          "type": "int",
+          "code": "CurrentCharacterIndex"
+        }
+      ]
+    },
+    "_": "/// Global methods ///",
+    "Print": {
+      "title": "Print",
+      "category": "global",
+      "description": "Print text to console",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "Print(${message})\n${nextAction}"
+        },
+        {
+          "name": "message",
+          "type": "data",
+          "dynamic": {
+            "naming": "numeric",
+            "delimiter": ", "
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "Include": {
+      "title": "Include",
+      "category": "global",
+      "inputs": [
+        {
+          "name": "path",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "result",
+          "type": "data",
+          "code": "Include(\"${path}\")"
+        }
+      ]
+    },
+    "_": "/// Flow ///",
+    "sequence": {
+      "title": "sequence",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "${actions}\n"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "actions",
+          "title": "Then",
+          "type": "exec",
+          "dynamic": {
+            "naming": "numeric",
+            "delimiter": "\n"
+          }
+        }
+      ]
+    },
+    "if": {
+      "title": "if",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "if ${condition}\n{\n\t${true}\n}\nelse\n{\n\t${false}\n}\n${nextAction}"
+        },
+        {
+          "name": "condition",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "true",
+          "type": "exec"
+        },
+        {
+          "name": "false",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ],
+      "style": {
+        "minWidth": 120
+      }
+    },
+    "repeat forever": {
+      "title": "repeat forever",
+      "category": "flow",
+      "description": "repeat forever until break",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat\n{\n\t${repeatAction}\n}\n${nextAction}"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "repeat": {
+      "title": "repeat",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat ${times}\n{\n\t${repeatAction}\n}\n${nextAction}"
+        },
+        {
+          "name": "times",
+          "type": "int"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ],
+      "style": {
+        "minWidth": 140
+      }
+    },
+    "repeat with index": {
+      "title": "repeat with index",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat ${times} as i\n{\n\t${repeatAction}\n}\n${nextAction}"
+        },
+        {
+          "name": "times",
+          "type": "int"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "code": "i"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ],
+      "style": {
+        "minWidth": 140
+      }
+    },
+    "repeat until (pre-check)": {
+      "title": "repeat until (pre-check)",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat until ${condition}\n{\n\t${repeatAction}\n}\n${nextAction}"
+        },
+        {
+          "name": "condition",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "repeat until (post-check)": {
+      "title": "repeat until (post-check)",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat\n{\n\t${repeatAction}\n} until ${condition}\n${nextAction}"
+        },
+        {
+          "name": "condition",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "repeat while (pre-check)": {
+      "title": "repeat while (pre-check)",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat while ${condition}\n{\n\t${repeatAction}\n}\n${nextAction}"
+        },
+        {
+          "name": "condition",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "repeat while (post-check)": {
+      "title": "repeat while (post-check)",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "repeat\n{\n\t${repeatAction}\n} while ${condition}\n${nextAction}"
+        },
+        {
+          "name": "condition",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "repeatAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ]
+    },
+    "foreach": {
+      "title": "foreach",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "foreach ${array}\n{\n\t${repeatAction}\n}\n${nextAction}"
+        },
+        {
+          "name": "array",
+          "type": "array"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "foreachAction",
+          "type": "exec"
+        },
+        {
+          "name": "nextAction",
+          "type": "exec"
+        }
+      ],
+      "style": {
+        "minWidth": 140
+      }
+    },
+    "break": {
+      "title": "break",
+      "category": "flow",
+      "inputs": [
+        {
+          "type": "exec",
+          "code": "break"
+        }
+      ]
+    },
+    "_": "/// Math operations ///",
+    "+": {
+      "title": "a + b",
+      "category": "math",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "code": "(${a} + ${b})"
+        }
+      ]
+    },
+    "+ (dynamic)": {
+      "title": "a + b + c + ...",
+      "category": "math",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data",
+          "dynamic": {
+            "naming": "abc",
+            "delimiter": " + "
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "code": "${a}"
+        }
+      ]
+    },
+    "-": {
+      "title": "a - b",
+      "category": "math",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "code": "(${a} - ${b})"
+        }
+      ]
+    },
+    "*": {
+      "title": "a * b",
+      "category": "math",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "code": "(${a} * ${b})"
+        }
+      ]
+    },
+    "* (dynamic)": {
+      "title": "a * b * c * ...",
+      "category": "math",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data",
+          "dynamic": {
+            "naming": "abc",
+            "delimiter": " * "
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "code": "${a}"
+        }
+      ]
+    },
+    "/": {
+      "title": "a / b",
+      "category": "math",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "code": "(${a} / ${b})"
+        }
+      ]
+    },
+    "_": "/// Logic operations ///",
+    "==": {
+      "title": "a == b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} == ${b})"
+        }
+      ]
+    },
+    "!=": {
+      "title": "a != b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} != ${b})"
+        }
+      ]
+    },
+    ">": {
+      "title": "a > b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} > ${b})"
+        }
+      ]
+    },
+    ">=": {
+      "title": "a >= b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} >= ${b})"
+        }
+      ]
+    },
+    "<": {
+      "title": "a < b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} < ${b})"
+        }
+      ]
+    },
+    "<=": {
+      "title": "a <= b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "data"
+        },
+        {
+          "name": "b",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} <= ${b})"
+        }
+      ]
+    },
+    "and": {
+      "title": "a and b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "bool"
+        },
+        {
+          "name": "b",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} and ${b})"
+        }
+      ]
+    },
+    "and (dynamic)": {
+      "title": "a and b and c and ...",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "bool",
+          "dynamic": {
+            "naming": "abc",
+            "delimiter": " and "
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "${a}"
+        }
+      ]
+    },
+    "or": {
+      "title": "a or b",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "bool"
+        },
+        {
+          "name": "b",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "(${a} or ${b})"
+        }
+      ]
+    },
+    "or (dynamic)": {
+      "title": "a or b or c or ...",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "bool",
+          "dynamic": {
+            "naming": "abc",
+            "delimiter": " or "
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "${a}"
+        }
+      ]
+    },
+    "not": {
+      "title": "not a",
+      "category": "logic",
+      "inputs": [
+        {
+          "name": "a",
+          "type": "bool"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "code": "not ${a}"
+        }
+      ]
+    }
+  }
+}
