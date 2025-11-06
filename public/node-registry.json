@@ -136,7 +136,7 @@
       "inputs": [
         {
           "type": "exec",
-          "code": "if ${var} == bool\n{\n\t${true}\n}\nelse\n{\n\t${false}\n}"
+          "code": "if ${var} == bool\n{\n\t${success}\n}\nelse\n{\n\t${failedToCast}\n}"
         },
         {
           "name": "var",

@@ -145,7 +145,7 @@ export class GraphRenderer {
       : selected
       ? "#FFD700"
       : linkColor;
-    ctx.lineWidth = selected ? 3 : 2;
+    ctx.lineWidth = selected ? 3 : 3;
 
     // Animate exec links with moving dashes
     if (isExecLink && !temporary && !selected) {
